@@ -8,6 +8,7 @@ import {
   faSignOutAlt,
   faEdit,
   faSpinner,
+  faPlusCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
 import NavigationContainer from "./navigation/navigation-container";
@@ -21,7 +22,7 @@ import PortfolioDetail from "./portfolio/portfolio-detail";
 import Auth from "./pages/auth";
 import NoMatch from "./pages/no-match";
 
-library.add(faTrash, faSignOutAlt, faEdit, faSpinner);
+library.add(faTrash, faSignOutAlt, faEdit, faSpinner, faPlusCircle);
 
 export default class App extends Component {
   constructor(props) {
@@ -32,7 +33,7 @@ export default class App extends Component {
     };
 
     this.handleSuccessfulLogin = this.handleSuccessfulLogin.bind(this);
-    this.handleUnSuccessfulLogin = this.handleUnSuccessfulLogin.bind(this);
+    this.handleUnsuccessfulLogin = this.handleUnsuccessfulLogin.bind(this);
     this.handleSuccessfulLogout = this.handleSuccessfulLogout.bind(this);
   }
 
@@ -42,7 +43,7 @@ export default class App extends Component {
     });
   }
 
-  handleUnSuccessfulLogin() {
+  handleUnsuccessfulLogin() {
     this.setState({
       loggedInStatus: "NOT_LOGGED_IN",
     });
@@ -62,10 +63,6 @@ export default class App extends Component {
       .then((response) => {
         const loggedIn = response.data.logged_in;
         const loggedInStatus = this.state.loggedInStatus;
-
-        // If loggedIn and status LOGGED_IN => return data
-        // If loggedIn status NOT_LOGGED_IN => update state
-        // If not loggedIn and status LOGGED_IN => update state
 
         if (loggedIn && loggedInStatus === "LOGGED_IN") {
           return loggedIn;
@@ -89,7 +86,6 @@ export default class App extends Component {
   }
 
   authorizedPages() {
-    //returns pages when user is logged in
     return [
       <Route
         key="portfolio-manager"
@@ -125,12 +121,18 @@ export default class App extends Component {
 
               <Route path="/about-me" component={About} />
               <Route path="/contact" component={Contact} />
-              <Route path="/blog" component={Blog} />
+
+              <Route
+                path="/blog"
+                render={(props) => (
+                  <Blog {...props} loggedInStatus={this.state.loggedInStatus} />
+                )}
+              />
+
               <Route path="/b/:slug" component={BlogDetail} />
               {this.state.loggedInStatus === "LOGGED_IN"
                 ? this.authorizedPages()
                 : null}
-
               <Route
                 exact
                 path="/portfolio/:slug"
