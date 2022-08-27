@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import axios from "axios";
-import parse from "html-react-parser";
-import BlogFeaturedImage from "../blog/blog-featured-image";
+import ReactHtmlParser from "react-html-parser";
+
 import BlogForm from "../blog/blog-form";
+import BlogFeaturedImage from "../blog/blog-featured-image";
 
 export default class BlogDetail extends Component {
   constructor(props) {
@@ -15,10 +16,30 @@ export default class BlogDetail extends Component {
     };
 
     this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleFeaturedImageDelete = this.handleFeaturedImageDelete.bind(this);
+    this.handleUpdateFormSubmission =
+      this.handleUpdateFormSubmission.bind(this);
+  }
+
+  handleUpdateFormSubmission() {
+    this.setState({
+      blogItem: blog,
+      editMode: false,
+    });
+  }
+
+  handleFeaturedImageDelete() {
+    this.setState({
+      blogItem: {
+        featured_image_url: "",
+      },
+    });
   }
 
   handleEditClick() {
-    this.setState({ editMode: true });
+    if (this.props.loggedInStatus === "LOGGED_IN") {
+      this.setState({ editMode: true });
+    }
   }
 
   getBlogItem() {
@@ -47,7 +68,12 @@ export default class BlogDetail extends Component {
     const contentManager = () => {
       if (this.state.editMode) {
         return (
-          <BlogForm editMode={this.state.editMode} blog={this.state.blogItem} />
+          <BlogForm
+            handleFeaturedImageDelete={this.handleFeaturedImageDelete}
+            handleUpdateFormSubmission={this.handleUpdateFormSubmission}
+            editMode={this.state.editMode}
+            blog={this.state.blogItem}
+          />
         );
       } else {
         return (
@@ -56,7 +82,7 @@ export default class BlogDetail extends Component {
 
             <BlogFeaturedImage img={featured_image_url} />
 
-            <div className="content">{parse(String(content))}</div>
+            <div className="content">{ReactHtmlParser(content)}</div>
           </div>
         );
       }
